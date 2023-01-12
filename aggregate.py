@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name:         aggregate
-# Purpose:      ファイル情報を取得しJSONに保存
+# Purpose:      ファイル情報を取得しCSVに保存
 #
 # Author:       Shaneron
 #
@@ -9,15 +9,15 @@
 #-------------------------------------------------------------------------------
 
 def main():
-    import webbrowser
     import glob
     import os
     import json
+    import pandas as pd
 
     # パスファイル名
     text_path = "path.txt"
-    # jsonファイル名
-    json_path = "data.json"
+    # csvファイル名
+    csv_path = "data.csv"
 
     # パスの読み込み
     def get_path(name):
@@ -28,46 +28,54 @@ def main():
     # ファイルデータの取得,JSONに保存
     def get_file_data(path):
         total_lines = 0
-        json_data = {}
-        json_data["search_path"] = path
-        json_data["files"] = []
+        df_path = []
+        df_name = []
+        df_extension = []
+        df_size = []
+        df_lines = []
         for file_path in glob.glob(path + "/**/*.*", recursive=True):
             # ファイル名
             file_name = os.path.split(file_path)[1]
+            # ファイルの拡張子
+            _, file_extension = os.path.splitext(file_path)
             # ファイルのサイズ
             file_size = os.path.getsize(file_path)
+
             # 行数が測定できないデータはlinesを0に設定
             try:
+                df_path.append(file_path)
+                df_name.append(file_name)
+                df_extension.append(file_extension)
+                df_size.append(file_size)
                 print(f"path:{file_path}")
                 print(f"name:{file_name}")
+                print(f"extension:{file_extension}")
                 print(f"size:{file_size}")
                 with open(file_path) as lf:
                     file_lines = sum([1 for line in lf])
                 print(f"lines:{file_lines}\n")
                 total_lines += int(file_lines)
+
+                df_lines.append(file_lines)
+
             except UnicodeDecodeError:
                 file_lines = 0
+                df_lines.append(0)
 
-            # jsonに書き込む用のデータの追加
-            json_data["files"].append({
-                "path": file_path,
-                "name": file_name,
-                "size": file_size,
-                "lines": file_lines,
+        df = pd.DataFrame(
+            {
+                "path": df_path,
+                "name": df_name,
+                "extension": df_extension,
+                "size": df_size,
+                "lines": df_lines,
             })
 
-        # jsonファイルに書き込み
-        with open(json_path, "w") as jf:
-            json.dump(json_data, jf, indent=4)
-
-
+        df.to_csv(csv_path, index=False)
         print(total_lines)
 
     path_data = get_path(text_path)
     get_file_data(path_data)
-
-    # HTMLファイルを開く
-    #webbrowser.open("index.html")
 
 if __name__ == '__main__':
     main()
