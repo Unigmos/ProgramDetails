@@ -12,12 +12,12 @@ def main():
     import webbrowser
     import glob
     import os
-    import subprocess
+    import json
 
     # パスファイル名
     text_path = "path.txt"
-    # 除外する拡張子
-    excp_list = [".aup",".png",".jpg",".wav",".mp3",".mp4",".txt"]
+    # jsonファイル名
+    json_path = "data.json"
 
     # パスの読み込み
     def get_path(name):
@@ -25,24 +25,45 @@ def main():
             path_name = f.readline().rstrip()
         return path_name
 
-    # ファイルデータの取得
+    # ファイルデータの取得,JSONに保存
     def get_file_data(path):
-        for file_path in glob.glob(path + "/**/*"):
+        total_lines = 0
+        json_data = {}
+        json_data["search_path"] = path
+        json_data["files"] = []
+        for file_path in glob.glob(path + "/**/*.*", recursive=True):
+            # ファイル名
             file_name = os.path.split(file_path)[1]
-            _, extension = os.path.splitext(file_name)
-            # ファイルの有無を確認することでディレクトリ名だけのパスを除外する
-            # また、動画ファイルなど行数が測定できないファイルを除外する
-            if os.path.isfile(file_path) and extension not in excp_list:
-                #print(extension)
+            # ファイルのサイズ
+            file_size = os.path.getsize(file_path)
+            # 行数が測定できないデータはlinesを0に設定
+            try:
                 print(f"path:{file_path}")
                 print(f"name:{file_name}")
-                print(f"size:{os.path.getsize(file_path)}")
+                print(f"size:{file_size}")
                 with open(file_path) as lf:
-                    lines = sum([1 for line in lf])
-                print(f"lines:{lines}\n")
+                    file_lines = sum([1 for line in lf])
+                print(f"lines:{file_lines}\n")
+                total_lines += int(file_lines)
+            except UnicodeDecodeError:
+                file_lines = 0
+
+            # jsonに書き込む用のデータの追加
+            json_data["files"].append({
+                "path": file_path,
+                "name": file_name,
+                "size": file_size,
+                "lines": file_lines,
+            })
+
+        # jsonファイルに書き込み
+        with open(json_path, "w") as jf:
+            json.dump(json_data, jf, indent=4)
+
+
+        print(total_lines)
 
     path_data = get_path(text_path)
-    #print(path_data)
     get_file_data(path_data)
 
     # HTMLファイルを開く
