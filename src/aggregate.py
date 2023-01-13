@@ -11,7 +11,6 @@
 def main():
     import glob
     import os
-    import json
     import pandas as pd
 
     # パスファイル名
