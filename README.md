@@ -12,7 +12,7 @@
 | japanize_matplotlib | matplotlibの日本語対応 |
 
 ## 実行結果サンプル
-実行すると以下のような画面のブラウザが表示されます。
+実行すると以下のような画面のブラウザが表示されます。<br>
 <img src="https://user-images.githubusercontent.com/77985354/212237660-d3309c37-a9a6-44b8-869c-827f39cfa9b6.png" width="450px">
 <img src="https://user-images.githubusercontent.com/77985354/212237672-61f3befe-2ca7-4d5b-8d8f-0c14d8e5bca0.png" width="450px">
 
@@ -28,3 +28,6 @@ python aggregate.py
 rem ブラウザ画面に表示
 streamlit run page.py
 ```
+
+## お問い合わせ
+メールアドレス:contact@shaneron.com
